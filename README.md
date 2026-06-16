@@ -34,7 +34,7 @@ bash <(curl -Ls https://raw.githubusercontent.com/saeedpayab/DV_BOT/refs/heads/m
 
 ### 📋 Installation Steps
 
-1. **Run the install command** — paste the curl command into your Ubuntu terminal and press Enter.
+1. **Run the install command** — paste the bash command into your Ubuntu terminal and press Enter.
 2. **Enter your Telegram Bot Token** — the installer will prompt you. Just paste your token and press Enter.
 3. **Sit back & relax 🎉** — everything else is handled automatically. The bot will be live in moments!
 
