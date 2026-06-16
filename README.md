@@ -1,3 +1,5 @@
+[English](/README.md) | [فارسی](/README.fa_IR.md)
+
 # 📥 DV BOT
 
 ![Telegram Bot](https://img.shields.io/badge/Telegram-Bot-blue?logo=telegram)
