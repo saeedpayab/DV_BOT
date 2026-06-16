@@ -1,5 +1,12 @@
 [English](/README.md) | [فارسی](/README.fa_IR.md)
 
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./media/logo.png">
+    <img alt="dv bot" src="./media/logo.png">
+  </picture>
+</p>
+
 # 📥 DV BOT
 
 ![Telegram Bot](https://img.shields.io/badge/Telegram-Bot-blue?logo=telegram)
