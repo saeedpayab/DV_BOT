@@ -1,5 +1,12 @@
 [English](/README.md) | [فارسی](/README.fa_IR.md)
 
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./media/logo.png">
+    <img alt="dv bot" src="./media/logo.png" style="width:300px; height:auto;">
+  </picture>
+</p>
+
 <div dir="rtl">
 
 # 📥 DV BOT
