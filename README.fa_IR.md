@@ -31,7 +31,7 @@
 دستور زیر رو روی سرور اوبونتوت اجرا کن:
 
 ```bash
-curl -sL "https://raw.githubusercontent.com/saeedpayab/DV_BOT/refs/heads/main/install.sh" | bash
+bash <(curl -Ls https://raw.githubusercontent.com/saeedpayab/DV_BOT/refs/heads/main/install.sh)
 ```
 
 ### 📋 مراحل نصب
