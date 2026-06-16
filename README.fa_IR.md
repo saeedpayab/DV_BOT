@@ -1,3 +1,5 @@
+[English](/README.md) | [فارسی](/README.fa_IR.md)
+
 <div dir="rtl">
 
 # 📥 DV BOT
