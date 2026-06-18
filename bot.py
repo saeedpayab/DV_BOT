@@ -13,9 +13,10 @@ from telegram.ext import (
 )
 
 # ==================== تنظیمات ====================
-BOT_TOKEN = "اینجا-باید-توکن-رو-وارد-کنی"
+BOT_TOKEN = "Token-Ro-Vard-Kon"
 CHANNEL_ID = "@v2r_plus"
-DELETE_AFTER_SECONDS = 60  # پاک شدن فایل از سرور بعد از ۶۰ ثانیه
+DELETE_AFTER_SECONDS = 60
+COOKIE_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "cookies.txt")
 # =================================================
 
 logging.basicConfig(
@@ -24,9 +25,13 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+if os.path.exists(COOKIE_FILE):
+    logger.info(f"✅ فایل کوکی پیدا شد: {COOKIE_FILE}")
+else:
+    logger.warning(f"⚠️ فایل کوکی پیدا نشد: {COOKIE_FILE}")
+
 
 async def check_membership(user_id: int, context: ContextTypes.DEFAULT_TYPE) -> bool:
-    """بررسی عضویت کاربر در کانال"""
     try:
         member = await context.bot.get_chat_member(CHANNEL_ID, user_id)
         return member.status in ["member", "administrator", "creator"]
@@ -35,7 +40,6 @@ async def check_membership(user_id: int, context: ContextTypes.DEFAULT_TYPE) -> 
 
 
 async def delete_file_later(filepath: str, delay: int):
-    """پاک کردن فایل از سرور بعد از تاخیر مشخص"""
     await asyncio.sleep(delay)
     try:
         if os.path.exists(filepath):
@@ -46,7 +50,6 @@ async def delete_file_later(filepath: str, delay: int):
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """هندلر دستور /start"""
     user = update.effective_user
     is_member = await check_membership(user.id, context)
 
@@ -55,60 +58,47 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             [InlineKeyboardButton("📢 عضویت در کانال", url="https://t.me/v2r_plus")],
             [InlineKeyboardButton("✅ عضو شدم!", callback_data="check_membership")],
         ]
-        reply_markup = InlineKeyboardMarkup(keyboard)
         await update.message.reply_text(
             f"👋 سلام {user.first_name}!\n\n"
             "برای استفاده از ربات، ابتدا باید در کانال ما عضو بشی 👇",
-            reply_markup=reply_markup,
+            reply_markup=InlineKeyboardMarkup(keyboard),
         )
         return
 
     await update.message.reply_text(
         f"👋 سلام {user.first_name}! خوش اومدی!\n\n"
         "🎬 *ربات دانلودر ویدیو*\n\n"
-        "فقط لینک ویدیو رو برام بفرست تا دانلودش کنم:\n\n"
+        "فقط لینک ویدیو رو برام بفرست:\n\n"
         "✅ یوتیوب (YouTube)\n"
         "✅ اینستاگرام (Reels & Posts)\n"
         "✅ توییتر/X\n"
         "✅ تیک‌تاک (TikTok)\n"
         "✅ و خیلی سایت‌های دیگه!\n\n"
-        "⚠️ بعد از ارسال ویدیو، ۶۰ ثانیه فرصت داری تا سیوش کنی!\n\n"
-        "📎 کافیه لینک رو اینجا بفرستی...",
+        "⚠️ بعد از ارسال ویدیو، ۶۰ ثانیه فرصت داری تا سیوش کنی!",
         parse_mode="Markdown",
     )
 
 
 async def check_membership_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """بررسی عضویت بعد از کلیک روی دکمه"""
     query = update.callback_query
     await query.answer()
-
     user = query.from_user
     is_member = await check_membership(user.id, context)
 
     if is_member:
         await query.edit_message_text(
             "✅ عضویت تأیید شد!\n\n"
-            "🎬 *ربات دانلودر ویدیو*\n\n"
-            "حالا لینک ویدیو رو برام بفرست:\n\n"
-            "✅ یوتیوب\n"
-            "✅ اینستاگرام (Reels)\n"
-            "✅ توییتر/X\n"
-            "✅ تیک‌تاک\n"
-            "✅ و خیلی سایت‌های دیگه!\n\n"
+            "حالا لینک ویدیو رو برام بفرست! 🎬\n\n"
             "⚠️ بعد از ارسال ویدیو، ۶۰ ثانیه فرصت داری تا سیوش کنی!",
-            parse_mode="Markdown",
         )
     else:
         keyboard = [
             [InlineKeyboardButton("📢 عضویت در کانال", url="https://t.me/v2r_plus")],
             [InlineKeyboardButton("✅ عضو شدم!", callback_data="check_membership")],
         ]
-        reply_markup = InlineKeyboardMarkup(keyboard)
         await query.edit_message_text(
-            "❌ هنوز عضو کانال نشدی!\n\n"
-            "لطفاً اول در کانال عضو بشو بعد دکمه رو بزن 👇",
-            reply_markup=reply_markup,
+            "❌ هنوز عضو کانال نشدی!\n\nلطفاً اول عضو بشو بعد دکمه رو بزن 👇",
+            reply_markup=InlineKeyboardMarkup(keyboard),
         )
 
 
@@ -121,10 +111,9 @@ async def download_video(update: Update, context: ContextTypes.DEFAULT_TYPE):
             [InlineKeyboardButton("📢 عضویت در کانال", url="https://t.me/v2r_plus")],
             [InlineKeyboardButton("✅ عضو شدم!", callback_data="check_membership")],
         ]
-        reply_markup = InlineKeyboardMarkup(keyboard)
         await update.message.reply_text(
             "⛔ برای استفاده از ربات باید عضو کانال ما بشی 👇",
-            reply_markup=reply_markup,
+            reply_markup=InlineKeyboardMarkup(keyboard),
         )
         return
 
@@ -139,33 +128,28 @@ async def download_video(update: Update, context: ContextTypes.DEFAULT_TYPE):
     filename = None
 
     try:
-        # یوتیوب
-        if "youtube.com" in url or "youtu.be" in url:
-            ydl_opts = {
-                "format": "best[ext=mp4]/best",
-                "outtmpl": f"downloads/{user.id}_%(title).50s.%(ext)s",
-                "quiet": True,
-                "no_warnings": True,
-                "cookiefile": r"C:\Users\Saeed Payab\Desktop\Bot\cookies.txt",
-                "proxy": "socks5://127.0.0.1:10808",  # پورت VPN خودت رو بذار
-            }
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                info = ydl.extract_info(url, download=True)
-                title = info.get("title", "ویدیو")
-                filename = ydl.prepare_filename(info)
+        ydl_opts = {
+            "format": "18/best[ext=mp4]/best",
+            "outtmpl": f"downloads/{user.id}_%(title).50s.%(ext)s",
+            "quiet": True,
+            "no_warnings": True,
+            "nocheckcertificate": True,
+            "retries": 5,
+            "fragment_retries": 5,
+            "cookiefile": COOKIE_FILE if os.path.exists(COOKIE_FILE) else None,
+            "extractor_args": {"youtube": {"player_client": ["tv"]}},
+            "remote_components": ["ejs:github"],
+        }
 
-        # اینستاگرام، تیک‌تاک، توییتر و بقیه
-        else:
-            ydl_opts = {
-                "format": "best[ext=mp4]/best",
-                "outtmpl": f"downloads/{user.id}_%(title).50s.%(ext)s",
-                "quiet": True,
-                "no_warnings": True,
-            }
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                info = ydl.extract_info(url, download=True)
-                title = info.get("title", "ویدیو")
-                filename = ydl.prepare_filename(info)
+        if os.path.exists(COOKIE_FILE):
+            ydl_opts["cookiefile"] = COOKIE_FILE
+
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(url, download=True)
+            title = info.get("title", "ویدیو")
+            filename = ydl.prepare_filename(info)
+            if not os.path.exists(filename):
+                filename = filename.rsplit(".", 1)[0] + ".mp4"
 
         file_size_mb = os.path.getsize(filename) / (1024 * 1024)
         await status_msg.edit_text(f"📤 در حال آپلود... ({file_size_mb:.1f} MB)")
@@ -201,17 +185,8 @@ async def download_video(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if filename and os.path.exists(filename):
             os.remove(filename)
 
-    finally:
-        # اگه آپلود موفق نبود فایل رو همون لحظه پاک کن
-        if filename and os.path.exists(filename):
-            # فقط اگه task پاک‌سازی ست نشده باشه
-            pass
-
 
 def main():
-    from telegram.ext import ApplicationBuilder
-    import httpx
-
     app = (
         Application.builder()
         .token(BOT_TOKEN)
