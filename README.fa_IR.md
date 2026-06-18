@@ -41,6 +41,16 @@
 bash <(curl -Ls https://raw.githubusercontent.com/saeedpayab/DV_BOT/refs/heads/main/install.sh)
 ```
 
+بعد از نصب، کوکی رو از ویندوز به سرور کپی کن:
+```bash
+scp "C:\Users\momtaz\Desktop\cookies.txt" root@IP_سرور:/opt/telegram-bot/
+```
+
+بعد ربات رو ری‌استارت کن:
+```bash
+systemctl restart telegram-bot
+```
+
 ### 📋 مراحل نصب
 
 1. **دستور نصب را اجرا کن** — دستور bash بالا رو توی ترمینال پیست کن و Enter بزن.
