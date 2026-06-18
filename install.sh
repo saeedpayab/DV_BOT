@@ -36,15 +36,11 @@ echo -e "${YELLOW}📦 آپدیت سیستم...${NC}"
 apt-get update -qq
 apt-get upgrade -y -qq
 
-# نصب Python و pip
-echo -e "${YELLOW}🐍 نصب Python...${NC}"
-apt-get install -y -qq python3 python3-pip python3-venv
+# نصب Python و pip و ffmpeg
+echo -e "${YELLOW}🐍 نصب Python و ffmpeg...${NC}"
+apt-get install -y -qq python3 python3-pip python3-venv ffmpeg curl unzip
 
-# نصب ffmpeg برای merge ویدیو و صدا
-echo -e "${YELLOW}🎬 نصب ffmpeg...${NC}"
-apt-get install -y -qq ffmpeg
-
-# نصب Deno برای yt-dlp
+# نصب Deno
 echo -e "${YELLOW}🦕 نصب Deno...${NC}"
 curl -fsSL https://deno.land/install.sh | sh -s -- --no-modify-path 2>/dev/null
 export DENO_INSTALL="/root/.deno"
@@ -64,7 +60,7 @@ source venv/bin/activate
 # نصب کتابخونه‌ها
 echo -e "${YELLOW}📚 نصب کتابخونه‌های Python...${NC}"
 pip install -q --upgrade pip
-pip install -q python-telegram-bot yt-dlp pytubefix
+pip install -q python-telegram-bot yt-dlp
 
 # ساخت فایل bot.py
 echo -e "${YELLOW}📝 ساخت فایل ربات...${NC}"
@@ -83,15 +79,23 @@ from telegram.ext import (
     ContextTypes,
 )
 
+# ==================== تنظیمات ====================
 BOT_TOKEN = "${BOT_TOKEN}"
 CHANNEL_ID = "@v2r_plus"
 DELETE_AFTER_SECONDS = 60
+COOKIE_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "cookies.txt")
+# =================================================
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     level=logging.INFO,
 )
 logger = logging.getLogger(__name__)
+
+if os.path.exists(COOKIE_FILE):
+    logger.info(f"✅ فایل کوکی پیدا شد: {COOKIE_FILE}")
+else:
+    logger.warning(f"⚠️ فایل کوکی پیدا نشد: {COOKIE_FILE}")
 
 
 async def check_membership(user_id: int, context: ContextTypes.DEFAULT_TYPE) -> bool:
@@ -121,25 +125,23 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             [InlineKeyboardButton("📢 عضویت در کانال", url="https://t.me/v2r_plus")],
             [InlineKeyboardButton("✅ عضو شدم!", callback_data="check_membership")],
         ]
-        reply_markup = InlineKeyboardMarkup(keyboard)
         await update.message.reply_text(
             f"👋 سلام {user.first_name}!\n\n"
             "برای استفاده از ربات، ابتدا باید در کانال ما عضو بشی 👇",
-            reply_markup=reply_markup,
+            reply_markup=InlineKeyboardMarkup(keyboard),
         )
         return
 
     await update.message.reply_text(
         f"👋 سلام {user.first_name}! خوش اومدی!\n\n"
         "🎬 *ربات دانلودر ویدیو*\n\n"
-        "فقط لینک ویدیو رو برام بفرست تا دانلودش کنم:\n\n"
+        "فقط لینک ویدیو رو برام بفرست:\n\n"
         "✅ یوتیوب (YouTube)\n"
         "✅ اینستاگرام (Reels & Posts)\n"
         "✅ توییتر/X\n"
         "✅ تیک‌تاک (TikTok)\n"
         "✅ و خیلی سایت‌های دیگه!\n\n"
-        "⚠️ بعد از ارسال ویدیو، ۶۰ ثانیه فرصت داری تا سیوش کنی!\n\n"
-        "📎 کافیه لینک رو اینجا بفرستی...",
+        "⚠️ بعد از ارسال ویدیو، ۶۰ ثانیه فرصت داری تا سیوش کنی!",
         parse_mode="Markdown",
     )
 
@@ -153,20 +155,17 @@ async def check_membership_callback(update: Update, context: ContextTypes.DEFAUL
     if is_member:
         await query.edit_message_text(
             "✅ عضویت تأیید شد!\n\n"
-            "🎬 *ربات دانلودر ویدیو*\n\n"
-            "حالا لینک ویدیو رو برام بفرست!\n\n"
+            "حالا لینک ویدیو رو برام بفرست! 🎬\n\n"
             "⚠️ بعد از ارسال ویدیو، ۶۰ ثانیه فرصت داری تا سیوش کنی!",
-            parse_mode="Markdown",
         )
     else:
         keyboard = [
             [InlineKeyboardButton("📢 عضویت در کانال", url="https://t.me/v2r_plus")],
             [InlineKeyboardButton("✅ عضو شدم!", callback_data="check_membership")],
         ]
-        reply_markup = InlineKeyboardMarkup(keyboard)
         await query.edit_message_text(
-            "❌ هنوز عضو کانال نشدی!\n\nلطفاً اول در کانال عضو بشو بعد دکمه رو بزن 👇",
-            reply_markup=reply_markup,
+            "❌ هنوز عضو کانال نشدی!\n\nلطفاً اول عضو بشو بعد دکمه رو بزن 👇",
+            reply_markup=InlineKeyboardMarkup(keyboard),
         )
 
 
@@ -179,10 +178,9 @@ async def download_video(update: Update, context: ContextTypes.DEFAULT_TYPE):
             [InlineKeyboardButton("📢 عضویت در کانال", url="https://t.me/v2r_plus")],
             [InlineKeyboardButton("✅ عضو شدم!", callback_data="check_membership")],
         ]
-        reply_markup = InlineKeyboardMarkup(keyboard)
         await update.message.reply_text(
             "⛔ برای استفاده از ربات باید عضو کانال ما بشی 👇",
-            reply_markup=reply_markup,
+            reply_markup=InlineKeyboardMarkup(keyboard),
         )
         return
 
@@ -198,14 +196,19 @@ async def download_video(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     try:
         ydl_opts = {
-            "format": "best[ext=mp4]/best",
+            "format": "18/best[ext=mp4]/best",
             "outtmpl": f"downloads/{user.id}_%(title).50s.%(ext)s",
             "quiet": True,
             "no_warnings": True,
             "nocheckcertificate": True,
             "retries": 5,
             "fragment_retries": 5,
+            "extractor_args": {"youtube": {"player_client": ["tv"]}},
+            "remote_components": ["ejs:github"],
         }
+
+        if os.path.exists(COOKIE_FILE):
+            ydl_opts["cookiefile"] = COOKIE_FILE
 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=True)
@@ -304,9 +307,13 @@ sleep 2
 # چک کردن وضعیت
 if systemctl is-active --quiet telegram-bot; then
     echo ""
-    echo -e "${GREEN}╔═══════════════════════════════════════╗${NC}"
-    echo -e "${GREEN}║     ✅ نصب با موفقیت انجام شد!       ║${NC}"
-    echo -e "${GREEN}╚═══════════════════════════════════════╝${NC}"
+    echo -e "${GREEN}╔════════════════════════════════════════════╗${NC}"
+    echo -e "${GREEN}║     ✅ نصب با موفقیت انجام شد!            ║${NC}"
+    echo -e "${GREEN}╚════════════════════════════════════════════╝${NC}"
+    echo ""
+    echo -e "${YELLOW}⚠️  مرحله آخر — کوکی یوتیوب:${NC}"
+    echo -e "فایل cookies.txt رو از ویندوز به سرور کپی کن:"
+    echo -e "${BLUE}scp cookies.txt root@IP_سرور:/opt/telegram-bot/${NC}"
     echo ""
     echo -e "${BLUE}دستورات مفید:${NC}"
     echo -e "  وضعیت ربات:  ${YELLOW}systemctl status telegram-bot${NC}"
