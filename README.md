@@ -39,6 +39,18 @@ Run the following command on your Ubuntu server:
 bash <(curl -Ls https://raw.githubusercontent.com/saeedpayab/DV_BOT/refs/heads/main/install.sh)
 ```
 
+After installation, copy the cookie from Windows to the server:
+
+```bash
+scp "C:\Users\momtaz\Desktop\cookies.txt" root@IP_سرور:/opt/telegram-bot/
+```
+
+Then restart the robot:
+
+```bash
+systemctl restart telegram-bot
+```
+
 ### 📋 Installation Steps
 
 1. **Run the install command** — paste the bash command into your Ubuntu terminal and press Enter.
